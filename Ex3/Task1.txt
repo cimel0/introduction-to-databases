@@ -1,0 +1,229 @@
+# Task 1: Visualizing the Schema - Relational Schema
+
+RELATIONAL SCHEMA OF THE CHESS DATABASE
+
+ecos(eco_id, eco_code)
+  Primary Key: eco_id
+
+openings(opening_id, opening_text, eco_id)
+  Primary Key: opening_id
+  Foreign Key: eco_id references ecos.eco_id
+
+events(event_id, event_name)
+  Primary Key: event_id
+
+endings(ending_id, ending_type)
+  Primary Key: ending_id
+
+tournaments(tournament_id, tournament_url)
+  Primary Key: tournament_id
+
+players(player_id, player_name)
+  Primary Key: player_id
+
+titles(title_id, title_short)
+  Primary Key: title_id
+
+games(game_id, event_id, tournament_id, site, result, game_start, time_control, opening_id, ending_id, game_data)
+  Primary Key: game_id
+  Foreign Keys: 
+    event_id references events.event_id
+    tournament_id references tournaments.tournament_id
+    opening_id references openings.opening_id
+    ending_id references endings.ending_id
+
+games_players(player_id, game_id, elo, diff, title_id, white)
+  Primary Key: (player_id, game_id)
+  Foreign Keys:
+    player_id references players.player_id
+    game_id references games.game_id
+    title_id references titles.title_id
+
+
+EXPLANATION: HOW I GOT THIS SOLUTION
+
+Step 1: Looking at the ERD Diagram
+
+I analyzed the database diagram (introdb.png) and identified these entities:
+- ecos (chess opening codes)
+- openings (opening moves)
+- events (tournament events)
+- endings (game endings)
+- tournaments (chess tournaments)
+- players (chess players)
+- titles (player titles like GM, IM)
+- games (chess games)
+- games_players (junction table connecting games and players)
+
+
+Step 2: Applying Transformation Rules from Lecture
+
+RULE 1: Strong Entity Types (Slides 31-32)
+
+Each strong entity becomes its own table with a primary key and attributes.
+
+Formula from lecture: E(K, a1, ..., an)
+Where K is the primary key and a1...an are attributes.
+
+Applied to our database:
+
+ecos table:
+  - eco_id is the identifier (key symbol in ERD)
+  - eco_code is an attribute
+  Result: ecos(eco_id, eco_code)
+
+events table:
+  - event_id is the identifier
+  - event_name is an attribute
+  Result: events(event_id, event_name)
+
+endings table:
+  - ending_id is the identifier
+  - ending_type is an attribute
+  Result: endings(ending_id, ending_type)
+
+tournaments table:
+  - tournament_id is the identifier
+  - tournament_url is an attribute
+  Result: tournaments(tournament_id, tournament_url)
+
+players table:
+  - player_id is the identifier
+  - player_name is an attribute
+  Result: players(player_id, player_name)
+
+titles table:
+  - title_id is the identifier
+  - title_short is an attribute
+  Result: titles(title_id, title_short)
+
+
+RULE 2: Weak Entity Types (Slides 33-34)
+
+Weak entities depend on another entity. According to the lecture, we add the owner entity's key as a foreign key.
+
+Formula from lecture: W(K, a1, ..., an)
+Where K is both primary key and foreign key referencing the owner entity.
+
+openings is a weak entity depending on ecos:
+  - opening_id is its own identifier
+  - eco_id is the foreign key pointing to ecos
+  - opening_text is an attribute
+  Result: openings(opening_id, opening_text, eco_id)
+  Foreign Key: eco_id references ecos.eco_id
+
+
+RULE 3: One-to-Many Relationships (1:N) (Slides 40-41, 49)
+
+According to the lecture, for 1:N relationships:
+  - Add the primary key from the "one" side as a foreign key to the "many" side
+  - NO separate table is needed
+
+games has several 1:N relationships:
+  - One event has many games
+  - One tournament has many games
+  - One opening appears in many games
+  - One ending appears in many games
+
+Therefore, games receives all these foreign keys:
+
+games(game_id, event_id, tournament_id, site, result, game_start, time_control, opening_id, ending_id, game_data)
+
+Where:
+  - game_id is the primary key
+  - event_id, tournament_id, opening_id, ending_id are foreign keys
+  - site, result, game_start, time_control, game_data are attributes
+
+
+RULE 4: Many-to-Many Relationships (M:N) (Slides 38-39, 47)
+
+According to the lecture, for M:N relationships:
+  - Create a separate junction table
+  - Use both IDs together as a composite primary key
+
+Formula from lecture: B(K1, K2, a1, ..., an)
+Where (K1, K2) forms the composite primary key.
+
+games_players connects games and players (M:N relationship):
+  - One game has multiple players (white and black)
+  - One player plays many games
+
+The ERD shows additional attributes on this relationship:
+  - elo (player's ELO rating)
+  - diff (rating difference)
+  - title_id (player's title in this game)
+  - white (boolean: is this player white?)
+
+Result: games_players(player_id, game_id, elo, diff, title_id, white)
+
+Primary Key: (player_id, game_id) - composite key
+Foreign Keys:
+  - player_id references players.player_id
+  - game_id references games.game_id
+  - title_id references titles.title_id
+
+Why composite primary key?
+  - player_id alone is not unique (a player plays many games)
+  - game_id alone is not unique (a game has 2 players)
+  - Together (player_id, game_id) uniquely identifies each row
+
+
+Step 3: Key Constraints (Slides 24-27)
+
+PRIMARY KEY CONSTRAINTS (Slide 26):
+  - Primary keys must be unique
+  - Primary keys cannot be NULL
+  - Each table must have exactly one primary key
+
+FOREIGN KEY CONSTRAINTS (Slides 26-27):
+  - Foreign keys either are NULL OR reference a valid primary key
+  - This maintains referential integrity
+  - A foreign key value must exist in the referenced table
+
+
+SUMMARY OF TRANSFORMATION RULES USED:
+
+1. Strong entities become their own table with primary key
+2. Weak entities get their own key plus foreign key from owner
+3. 1:N relationships add foreign key to the "many" side table
+4. M:N relationships need a separate junction table with composite key
+5. Entity attributes become table columns
+6. Relationship attributes become columns in the relationship table
+
+
+DATABASE STRUCTURE OVERVIEW:
+
+Simple entities:
+  - ecos
+  - events
+  - endings
+  - tournaments
+  - players
+  - titles
+
+Dependent entities:
+  - openings (depends on ecos)
+
+Central entity:
+  - games (connects to events, tournaments, openings, endings)
+
+Junction table:
+  - games_players (M:N between games and players)
+
+
+Visual representation:
+
+ecos 
+  connected to openings (1:N)
+    openings connected to games (1:N)
+
+events connected to games (1:N)
+tournaments connected to games (1:N)
+endings connected to games (1:N)
+
+games connected to games_players (M:N)
+  games_players connected to players (M:N)
+  games_players connected to titles (1:N)
+
+
+This solution follows the transformation rules from Chapter 3 of the lecture (Slides 28-56) for converting ER diagrams into relational schemas.

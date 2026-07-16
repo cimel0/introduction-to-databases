@@ -1,0 +1,166 @@
+Schritt	Was	Warum
+1	schema.sql definieren		3 Tabellen mit PK, FK, Constraints
+2	.read schema.sql		Erstellt die 3 leeren Tabellen in die erstellte Datenbank gemeinde.db
+3	Excel → CSV			SQLite kann kein Excel direkt lesen
+4	bfs_raw erstellen		bfs_raw erstellen, Roh-Tabelle für den Import
+5	.import				CSV-Daten in bfs_raw laden (gleiche Struktur wie csv)
+6	Header löschen			Spaltenüberschrift ist keine echte Gemeinde
+7	INSERT INTO .. SELECT DISTINCT	Daten auf 3 Tabellen verteilen (normalisieren) -> Daten Übertragen
+8	JOIN-Query			Beweist: Originaltabelle ist rekonstruierbar
+
+1) 
+Bei der canton-Tabelle ist canton_short der Primary Key — das ist das Kürzel wie ZH oder BE. Der canton_name darf nicht leer sein und muss eindeutig sein.
+
+Bei der district-Tabelle ist district_id der Primary Key — das ist die Bezirksnummer. Jeder Bezirk gehört zu einem Kanton, deshalb gibt es einen Foreign Key auf canton_short.
+
+Bei der municipality-Tabelle ist municipality_id der Primary Key — das ist die BFS-Gemeindenummer. Jede Gemeinde gehört zu einem Bezirk, deshalb gibt es einen Foreign Key auf district_id. Die historische Nummer ist als UNIQUE definiert, weil jede Hist.-Nummer nur einmal vorkommen darf. Das join_date ist als TEXT gespeichert, weil SQLite keinen eigenen DATE-Typ hat — das ISO-Format YYYY-MM-DD sortiert aber trotzdem chronologisch korrekt.
+
+
+Die Foreign Keys verbinden die Tabellen: Gemeinde → Bezirk → Kanton
+
+4) 
+-> Zwischenlösung!
+CREATE TABLE bfs_raw (
+  hist_nr           INTEGER,
+  canton_short      TEXT,
+  district_id       INTEGER,
+  distric_name      TEXT,
+  municipality_id   INTEGER,
+  municipality_name TEXT,
+  join_date         TEXT
+);
+
+-> SQLlite das csv format eingestellt und die datei importiert -> ladet alle 2115 Zeilen plus die Header-Zeile in die Roh-Tabelle 
+.mode csv
+.separator ";"
+.import Gemeindestand.csv bfs_raw
+
+6) 
+Header löschen: beim Import wird erste Zeile der CSV (Spaltenüberschrift) auch als Datensatz importiert. Aber keine echte gemeinde! 
+DELETE FROM bfs_raw WHERE hist_nr = 'Hist.-Nummer';
+
+7) 
+Für die Kantone verwende ich SELECT DISTINCT, damit jeder Kanton nur einmal eingefügt wird — obwohl zum Beispiel 'ZH' in der Roh-Tabelle 162 Mal vorkommt, für jede Zürcher Gemeinde. Ausserdem verwende ich CASE WHEN, um die vollen Kantonsnamen zuzuordnen, weil in der Excel-Datei nur die Kürzel stehen.
+Für die Bezirke verwende ich auch SELECT DISTINCT — jeder Bezirk wird nur einmal eingefügt, obwohl er in der Roh-Tabelle mehrfach vorkommt.
+Für die Gemeinden brauche wäre DISTINCT eigentlich nicht nötig, aber schadet auch nicht, weil jede Gemeinde sowieso nur einmal in der Quelltabelle vorkommt.
+
+INSERT INTO canton (canton_short, canton_name)
+SELECT DISTINCT
+  canton_short,
+  CASE canton_short
+    WHEN 'ZH' THEN 'Zürich'
+    WHEN 'BE' THEN 'Bern'
+    WHEN 'LU' THEN 'Luzern'
+    WHEN 'UR' THEN 'Uri'
+    WHEN 'SZ' THEN 'Schwyz'
+    WHEN 'OW' THEN 'Obwalden'
+    WHEN 'NW' THEN 'Nidwalden'
+    WHEN 'GL' THEN 'Glarus'
+    WHEN 'ZG' THEN 'Zug'
+    WHEN 'FR' THEN 'Fribourg'
+    WHEN 'SO' THEN 'Solothurn'
+    WHEN 'BS' THEN 'Basel-Stadt'
+    WHEN 'BL' THEN 'Basel-Landschaft'
+    WHEN 'SH' THEN 'Schaffhausen'
+    WHEN 'AR' THEN 'Appenzell Ausserrhoden'
+    WHEN 'AI' THEN 'Appenzell Innerrhoden'
+    WHEN 'SG' THEN 'St. Gallen'
+    WHEN 'GR' THEN 'Graubünden'
+    WHEN 'AG' THEN 'Aargau'
+    WHEN 'TG' THEN 'Thurgau'
+    WHEN 'TI' THEN 'Ticino'
+    WHEN 'VD' THEN 'Vaud'
+    WHEN 'VS' THEN 'Valais'
+    WHEN 'NE' THEN 'Neuchâtel'
+    WHEN 'GE' THEN 'Genève'
+    WHEN 'JU' THEN 'Jura'
+  END AS canton_name
+FROM bfs_raw
+WHERE canton_short IS NOT NULL;
+
+-- Bezirke aus bfs_raw in die district-Tabelle übernehmen
+INSERT INTO district (district_id, distric_name, canton_short)
+SELECT DISTINCT district_id, distric_name, canton_short
+FROM bfs_raw
+WHERE district_id IS NOT NULL;
+
+-- Gemeinden aus bfs_raw in die municipality-Tabelle übernehmen
+INSERT INTO municipality (municipality_id, municipality_name, hist_nr, join_date, district_id)
+SELECT DISTINCT municipality_id, municipality_name, hist_nr, join_date, district_id
+FROM bfs_raw
+WHERE municipality_id IS NOT NULL;
+
+
+-- Kantone zeigen
+SELECT * FROM canton LIMIT 10;
+
+-- Bezirke zeigen
+SELECT * FROM district LIMIT 10;
+
+-- Gemeinden zeigen
+SELECT * FROM municipality LIMIT 10;
+
+Anschliessend habe ich die normalisierten Tabellen district und municipality mit INSERT INTO … SELECT … aus der Roh-Tabelle bfs_raw befüllt. Dabei habe ich DISTINCT verwendet, um doppelte Kombinationen zu vermeiden.
+
+
+
+8) 
+
+-- Anzahl zeigen
+SELECT COUNT(*) FROM canton;      -- 26
+SELECT COUNT(*) FROM district;    -- 143
+SELECT COUNT(*) FROM municipality; -- 2115
+
+
+SELECT COUNT(*) FROM (
+  SELECT
+    m.hist_nr,
+    c.canton_short,
+    d.district_id,
+    d.distric_name,
+    m.municipality_id,
+    m.municipality_name,
+    m.join_date
+  FROM municipality AS m
+  JOIN district     AS d ON m.district_id  = d.district_id
+  JOIN canton       AS c ON d.canton_short = c.canton_short
+);
+
+
+
+
+FrageDeine AntwortWarum Normalisierung?"Vermeidet Redundanz — 'Zürich' steht nur 1x statt 162x"Warum CASE WHEN bei Kantonen?"Die Excel-Datei enthält nur Kürzel (ZH, BE), nicht die vollen Namen. Die musste ich manuell zuordnen."Warum TEXT für join_date?"SQLite hat keinen echten DATE-Typ. TEXT im ISO-Format (YYYY-MM-DD) sortiert korrekt."Was bedeutet DISTINCT?"Nimmt jeden Wert nur einmal, auch wenn er in der Quelle mehrfach vorkommt."
+
+
+
+-- 1. die Tabellen existieren
+.tables
+
+-- 2. Struktur der Tabellen 
+.schema canton
+.schema district
+.schema municipality
+
+-- 3. Inhalt der 3 normalisierten Tabellen
+SELECT * FROM canton LIMIT 5;
+SELECT * FROM district LIMIT 5;
+SELECT * FROM municipality LIMIT 5;
+
+-- 4. Anzahl zeigen
+SELECT COUNT(*) FROM canton;       -- 26
+SELECT COUNT(*) FROM district;     -- 143
+SELECT COUNT(*) FROM municipality; -- 2115
+
+-- 5. Beweis: Originaltabelle rekonstruieren
+SELECT
+  m.hist_nr             AS "Hist.-Nummer",
+  c.canton_short        AS "Kanton",
+  d.district_id         AS "Bezirks-nummer",
+  d.distric_name        AS "Bezirksname",
+  m.municipality_id     AS "BFS Gde-nummer",
+  m.municipality_name   AS "Gemeindename",
+  m.join_date           AS "Datum der Aufnahme"
+FROM municipality AS m
+JOIN district     AS d ON m.district_id  = d.district_id
+JOIN canton       AS c ON d.canton_short = c.canton_short
+LIMIT 10;

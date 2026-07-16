@@ -1,0 +1,300 @@
+╔════════════════════════════════════════════════════════════════════════╗
+║           TASK 2: What to Show the Tutor (Simple English)            ║
+║                        Step-by-Step Guide                             ║
+╚════════════════════════════════════════════════════════════════════════╝
+
+This guide tells you EXACTLY what to do and say! 💪
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PREPARATION (Do this BEFORE meeting the tutor)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Download the SQL dump file from SWITCH filesender
+   Password: IntroductionToDatabases2025
+
+2. Create the database:
+   cd ~/Desktop/Master/Semester\ 3/Databases/Exercises/Ex3/
+   sqlite3 chess.db < lichess2025.sql
+
+3. Download my ex2_sqlite.py file to the same folder
+
+4. Test that it works:
+   python3 ex2_sqlite.py
+
+If everything works → You're ready! ✅
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PART 1: Show the Checksum (CLI)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+WHAT TO DO:
+───────────
+Open Terminal and type:
+
+  cd ~/Desktop/Master/Semester\ 3/Databases/Exercises/Ex3/
+  sqlite3 chess.db
+
+Then in SQLite:
+
+  .sha3sum
+
+Then exit:
+
+  .quit
+
+
+WHAT TO SAY:
+────────────
+🗣️ "First, I'll show you that I created the database correctly."
+
+🗣️ "I'm opening the SQLite database..."
+   (Open sqlite3 chess.db)
+
+🗣️ "Now I run the checksum command..."
+   (Type .sha3sum)
+
+🗣️ "The result is: c2efb892126cec41740855dfdd0f856805c43cccb798e00189da5cfa"
+
+🗣️ "This matches the expected checksum, so the database is correct."
+
+🗣️ "Let me exit SQLite..."
+   (Type .quit)
+
+
+✅ DONE: Part 1 complete!
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PART 2: Show Python with SQLite
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+WHAT TO DO:
+───────────
+In Terminal:
+
+  python3 ex2_sqlite.py
+
+
+WHAT TO SAY:
+────────────
+🗣️ "Now I'll show you the Python script working with SQLite."
+
+🗣️ "I adapted the script from last week to use SQLite instead of PostgreSQL."
+   (Run python3 ex2_sqlite.py)
+
+🗣️ "As you can see, it connects to the SQLite database and runs queries."
+
+🗣️ "The output shows:
+     - The SQLite version
+     - Games won by white
+     - Games per month
+     - Total number of games"
+
+🗣️ "All queries work successfully!"
+
+
+✅ DONE: Part 2 complete!
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PART 3: Show Some CLI Queries (Bonus)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+WHAT TO DO:
+───────────
+Open SQLite again:
+
+  sqlite3 chess.db
+
+Show some queries:
+
+  .tables
+  SELECT * FROM games LIMIT 3;
+  SELECT COUNT(*) FROM games;
+  .quit
+
+
+WHAT TO SAY:
+────────────
+🗣️ "I can also use SQLite from the command line."
+   (Open sqlite3 chess.db)
+
+🗣️ "First, let me show all tables..."
+   (Type .tables)
+
+🗣️ "Now a simple query to see some data..."
+   (Type SELECT * FROM games LIMIT 3;)
+
+🗣️ "And count the total games..."
+   (Type SELECT COUNT(*) FROM games;)
+
+🗣️ "Everything works!"
+   (Type .quit)
+
+
+✅ DONE: Part 3 complete!
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PART 4: Explain What Works and What Doesn't
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+THE TUTOR WILL ASK:
+───────────────────
+❓ "Which queries still work? Which don't?"
+
+
+WHAT TO SAY:
+────────────
+🗣️ "Most queries work the same in both databases."
+
+🗣️ "These queries work identically:
+     - SELECT, WHERE, JOIN
+     - COUNT, SUM, AVG
+     - GROUP BY, ORDER BY
+     - LIMIT"
+
+🗣️ "But some queries needed changes:"
+
+🗣️ "1. Database connection:
+     - PostgreSQL needs host, port, username, password
+     - SQLite just needs the filename
+     - Much simpler!"
+
+🗣️ "2. Getting the version:
+     - PostgreSQL: version()
+     - SQLite: sqlite_version()"
+
+🗣️ "3. Extracting month from date:
+     - PostgreSQL: EXTRACT(MONTH FROM date)
+     - SQLite: strftime('%m', date)"
+
+🗣️ "4. Timezone functions:
+     - PostgreSQL has AT TIME ZONE
+     - SQLite doesn't support this
+     - I removed it"
+
+🗣️ "So the main difference is:
+     - Normal data queries work the same
+     - Special functions and metadata queries are different"
+
+
+OPTIONAL - If they ask for more details:
+────────────────────────────────────────
+🗣️ "I can show you the code changes if you want."
+   (Open ex2_sqlite.py in editor and point to the changes)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+COMPLETE PRESENTATION SCRIPT (All Together)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+OPENING:
+────────
+🗣️ "Hi! I'm here to show you Task 2 - working with SQLite."
+
+
+STEP 1: Checksum
+────────────────
+🗣️ "First, I created the database from the SQL dump."
+🗣️ "Let me verify the checksum..."
+
+  [Open: sqlite3 chess.db]
+  [Type: .sha3sum]
+  [Show result matches: c2efb892126cec41740855dfdd0f856805c43cccb798e00189da5cfa]
+  [Exit: .quit]
+
+
+
+STEP 2: Python Script
+─────────────────────
+Now I'll run the Python script that uses SQLite.
+
+  [Run: python3 ex2_sqlite.py]
+  [Wait for output]
+
+
+STEP 3: CLI Queries
+──────────────────────────────
+
+  [Open: sqlite3 chess.db]
+  [Show: .tables]
+  [Show: SELECT * FROM games LIMIT 3;]
+  [Exit: .quit]
+
+
+STEP 4: Explain Differences
+────────────────────────────
+🗣️ "Regarding which queries work:"
+🗣️ "Most SQL queries work the same - SELECT, JOIN, COUNT, etc."
+🗣️ "But I had to change:
+     - The connection (much simpler in SQLite)
+     - Date functions (EXTRACT → strftime)
+     - Version function (version → sqlite_version)"
+
+🗣️ "The main takeaway is:
+     - Normal SQL is very similar
+     - Special functions are different
+     - SQLite is simpler but less powerful"
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+COMMON QUESTIONS & ANSWERS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Q: "Why doesn't information_schema work in SQLite?"
+A: 🗣️ "SQLite uses sqlite_master instead. It's a different way to store
+       metadata about the database structure."
+
+
+Q: "Can you show me the code changes?"
+A: 🗣️ "Sure! The main changes are:
+       [Open ex2_sqlite.py and show lines 4, 11, 18, 27]
+       - Line 4: import sqlite3 instead of psycopg
+       - Line 11: Simple connection with just filename
+       - Line 18: sqlite_version() instead of version()
+       - Line 27: strftime() instead of EXTRACT()"
+
+
+Q: "Did you test other queries?"
+A: 🗣️ "Yes, I tested JOINs, GROUP BY, and ORDER BY - they all work the same!"
+
+
+Q: "What's the main advantage of SQLite?"
+A: 🗣️ "It's much simpler to set up - no server needed, just a file.
+       Great for embedded applications or learning SQL."
+
+
+Q: "What about disadvantages?"
+A: 🗣️ "SQLite doesn't support some advanced features like timezone handling
+       or some PostgreSQL-specific functions. Also, it's not designed for
+       multiple concurrent users like PostgreSQL."
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+QUICK REFERENCE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Commands to memorize:
+  cd ~/Desktop/Master/Semester\ 3/Databases/Exercises/Ex3/
+  sqlite3 chess.db
+  .sha3sum
+  .quit
+  python3 ex2_sqlite.py
+  .tables
+  SELECT * FROM games LIMIT 3;
+
+
+Key differences to mention:
+  - Connection: simpler in SQLite
+  - EXTRACT() → strftime()
+  - version() → sqlite_version()
+  - AT TIME ZONE → not supported
+  - Normal SQL: works the same!
+
+
+Expected checksum:
+  c2efb892126cec41740855dfdd0f856805c43cccb798e00189da5cfa
+
+

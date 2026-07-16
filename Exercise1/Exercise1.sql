@@ -1,0 +1,10 @@
+SELECT version(); 
+
+SELECT COUNT(*)
+FROM games
+WHERE result = '1-0'
+
+
+SELECT EXTRACT(MONTH FROM game_start AT TIME ZONE 'UTC'), COUNT(*)
+FROM games
+GROUP BY EXTRACT(MONTH FROM game_start AT TIME ZONE 'UTC')

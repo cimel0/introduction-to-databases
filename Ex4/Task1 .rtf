@@ -1,0 +1,86 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2822
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 LucidaGrande;\f2\fnil\fcharset0 AppleSymbols;
+}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;}
+{\*\expandedcolortbl;;\csgray\c0;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0\fs21\fsmilli10909 \cf2 SELECT canton.name, COUNT(village.name) AS villages\
+FROM canton, village\
+WHERE village.canton_id = canton.id\
+GROUP BY canton.name\
+HAVING COUNT(village.name) > 20\
+ORDER BY canton.name\
+\
+Gesamtbedeutung: die abfrage gibt f\'fcr jeden Kanton, der mehr als 20 D\'f6rfer hat, genau eine Zeile aus: mit dem Kantonsnamen und der Anzahl D\'f6rfer (villages) \
+\
+Select? Du w\'e4hlst aus was im Endergebnis erscheinen soll: Kantonsnamen, Anzahl D\'f6rfer (gennant als villages). \
+From ? Stehen die Tabellen, aus denen gelesen wird: Canton, village -> (Karteische Produkt (Cross Join))\
+Where? pr\'fcft Bedingung, verbindet jede Zeile eines Dorfes mit seinem Kanton (inner join) \
+Group by? gruppiert alle Zeilen nach Kantonsnamen. Alle D\'f6rfer eines Kantons kommen in eine Gruppe. \
+Having? Filtert gruppen, nicht einzelne Zeilen, nur Kantone behalten, die mehr als 20 D\'f6rfer haben \
+Order By? Sortiert das Endergebnis alphabetisch nach Kantonsnamen (ASC) \
+\
+Nach dem vorzeigen - Fazit: \
+FROM? -> CROSS PRODUKT! Cartesian produkt (cross join) \
+WHERE? Pr\'fcft Bedingung und entfernt dabei die die nicht zutreffen/matchen\
+GROUP BY? gruppiert sie zusammen, also z\'fcri Village1, z\'fcri Village2\
+HAVING? -> pr\'fcft wieder (wie where) ob diese zutreffen! \
+SELECT? Gibt aus! Und zwar mit count! Also es wird gez\'e4hlt! \
+ORDER BY? -> alphabetisch ASC!\
+\
+Reihenfolge: \
+1. From \
+2. Where \
+3. Group by \
+4. Having \
+5. Select\
+6. Order By \
+\
+[ Tabelle canton ]          [ Tabelle village ]\
+ id | name                  name | canton_id\
+-----------------   +       -----------------\
+ BE | Bern                  ... | BE\
+ ZH | Z\'fcrich                ... | ZH\
+ ...\
+\
+          \uc0\u9474    FROM + WHERE (Join)\
+          
+\f1 \uc0\u9660 
+\f0 \
+[ canton 
+\f2 \uc0\u8904 
+\f0  village ]\
+ jede Zeile: (canton.name, village.name)\
+\
+          \uc0\u9474    GROUP BY canton.name\
+          
+\f1 \uc0\u9660 
+\f0 \
+[ Gruppen pro Kanton ]\
+ Bern:   Dorf1, Dorf2, ...\
+ Z\'fcrich: DorfA, DorfB, ...\
+\
+          \uc0\u9474    HAVING COUNT(village.name) > 20\
+          
+\f1 \uc0\u9660 
+\f0 \
+[ nur Kantone mit > 20 D\'f6rfern ]\
+\
+          \uc0\u9474    SELECT\
+          
+\f1 \uc0\u9660 
+\f0 \
+[ canton.name | villages ]\
+\
+          \uc0\u9474    ORDER BY canton.name (A 
+\f1 \uc0\u8594 
+\f0  Z)\
+          
+\f1 \uc0\u9660 
+\f0 \
+[ Endergebnis ]\
+ erste Spalte, erste Zeile = \
+ alphabetisch erster Kanton mit > 20 D\'f6rfern\
+}

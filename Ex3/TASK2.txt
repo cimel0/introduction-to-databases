@@ -1,0 +1,52 @@
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+NEEDS TO SHOW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PART 1: CLI (Required)
+──────────────────────
+Commands to demonstrate:
+  cd ~/Desktop/Master/Semester\ 3/Databases/Exercises/Ex3/
+  sqlite3 chess.db
+
+Verify checksum:
+  .sha3sum
+
+Show all tables:
+  .tables
+
+Show first 3 player:
+  SELECT * FROM games LIMIT 3;
+
+Show schema of a table:
+.schema games
+
+Run a simple query
+SELECT COUNT(*) FROM games;
+
+Exit
+  .quit
+
+PART 2: Python
+──────────────────────────
+-> I will show you the python code. 
+I adapted the PostgreSQL code from Ex2 to work with SQLite. 
+
+Run: python3 ex2_sqlite.py
+
+
+PART 3: Explanation (Required)
+───────────────────────────────
+So basic SQL like Select, count, where, group by works the same in both databases. 
+
+Change1: Connection
+- PostgrestSQL needs server connection with credentials. SQLite just needs the file path. Much simpler! 
+
+Change2: Version function 
+- SQLite doesn't have a version() function, so I used sqlite_version() instead. 
+
+Change3: Date Functions 
+- SQLite doesn't have Extract() or timezone function. 
+Problem: last ex game_start is stored as Unix timestamps (like 142006), not a date (an integer that represents times according to the number of seconds) 
+Solution: I use datetime(game_start, 'unixepoch') to convert it 
+Then: use string-format-time ('%m', ...) to extract the month 
+Finally: I cast it to integer to get 1 instead of the string "01", because pythons calendar module needs an integer 
