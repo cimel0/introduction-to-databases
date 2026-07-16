@@ -2,3 +2,13 @@
 *.sqlite
 *.sqlite3
 Ex3/lichess2025.sql
+
+# IntelliJ
+.idea/
+*.iml
+
+# macOS
+.DS_Store
+
+# Apple Pages
+*.pages
